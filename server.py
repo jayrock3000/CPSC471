@@ -10,6 +10,9 @@ import socket
 import os
 from Python.sendfile.sendfileserv import FileReceiverServer
 
+# Debug mode provides additional console messages
+debug = True
+
 ################################################################
 # Function for ls command
 # List all files on server
@@ -38,8 +41,6 @@ def send_file():
 # Main Method
 
 def main():
-    # Variable for debugging program
-    debug = True
 
     # Set up socket
     server_port = 5432

@@ -8,6 +8,9 @@
 
 import socket
 
+# Debug mode provides additional console messages
+debug = True
+
 ################################################################
 # Function to get user input for commands
 # Input verification to ensure only ls, get, put, and quit are returned
@@ -52,7 +55,7 @@ def commandInput():
 
 def main():
     # Variable for debugging program
-    debug = True
+    
 
     # Connect to server
     server_name = 'localhost'
