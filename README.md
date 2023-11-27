@@ -14,7 +14,10 @@ Gia Minh Hoang - minhhg16@gmail.com
 
 Programming language used: Python
 
+
+
 Execution instructions:
 
 For client, use 'python client.py' in terminal
+
 For server, use 'python server.py' in terminal
