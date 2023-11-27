@@ -1,7 +1,16 @@
+################################################################
+# Group project for CPSC 471
+# By Jeffrey Rhoten, Lucas Nguyen and Minh Gia Hoang
+#
+# Client.py
+################################################################
+# Import statements
+
 import socket
 
-# Variable for debugging program
-debug = True
+################################################################
+# Function to get user input for commands
+# Input verification to ensure only ls, get, put, and quit are returned
 
 def commandInput():
     if debug == True:
@@ -38,26 +47,45 @@ def commandInput():
             continue
         break
 
+################################################################
+# Main Method
 
-# Connect to server
-server_name = 'localhost'
-server_port = 5432
+def main():
+    # Variable for debugging program
+    debug = True
+
+    # Connect to server
+    server_name = 'localhost'
+    server_port = 5432
 
 
-# Send commands to the server
-#command = input("Enter command (ls, get, put, quit): ")
+    command = ''
+    while command != 'quit':        # Repeatedly get user input until "quit" entered
 
-command = ''
-while command != 'quit':
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect((server_name, server_port))
-    command = commandInput()
-    client_socket.send(command.encode())
-    client_socket.close()
-    if debug == True:
-        print("client socket has closed")
+        # Get command from user
+        command = commandInput()
 
-# Handle server responses and file transfers
-# Your implementation for handling server responses and file transfers goes here
+        # Establish socket for command
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect((server_name, server_port))
+        if debug == True:
+            print("establishing client socket")
+            print("sending command")
 
-print("client has quit")
+        # Send command to server
+        client_socket.send(command.encode())
+
+        # Close socket
+        client_socket.close()
+        if debug == True:
+            print("client socket has closed")
+
+    print("client has quit")
+
+################################################################
+# Run main when program starts
+
+if __name__ == "__main__":
+    main()
+
+#END
