@@ -69,11 +69,11 @@ class FileReceiverServer:
             # Ensure we have a means to retrieve the precise location of the 'server_storage' folder.
             # Otherwise, it will only work on this (my laptop),
             # and upon installation on a new computer, the link/path MAY not work.
-            with open('server_response.txt', 'w') as file:
+            with open('Python\sendfile\server_response2.txt', 'w') as file:
                 file.write(f"Received file name: {filename}\n")
                 file.write(f"The file size is: {file_size}\n")
                 file.write(f"File's data:\n{file_data.decode('utf-8')}")
-
+            file.close()
 
             client_sock.close()
 

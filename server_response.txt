@@ -1,6 +1,8 @@
-Received file name: file.txt
-The file size is: 22
-File's data:
-a.txt
-sendfilecli.py
+Directory list: 
 
+- file.txt
+- place holder - Copy (2).txt
+- place holder - Copy (3).txt
+- place holder - Copy (4).txt
+- place holder - Copy.txt
+- place holder.txt

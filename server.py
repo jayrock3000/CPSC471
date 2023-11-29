@@ -33,10 +33,12 @@ def show_listing():
         files = os.listdir(directory)
         files = '\n- ' + '\n- '.join(files) + '\n'
         
+        print('writing directories list...')
         with open('server_response.txt', 'w') as f:
             f.write("Directory list: \n")
             f.write(files)
         f.close()
+        print('done')
     else:
         with open('server_response.txt', 'w') as f:
             f.write("Directory not found or is not a directory.")
@@ -86,7 +88,7 @@ def main():
             # Show files/directories in server
             if command == 'ls':
                 # print('Raw Response from server:\n')
-                # dir_list = show_listing()
+                dir_list = show_listing()
                 # print(dir_list)
                 print('Response sent to client')
 

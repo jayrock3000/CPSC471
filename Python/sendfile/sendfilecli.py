@@ -82,17 +82,23 @@ if __name__ == '__main__':
         sender = FileSenderClient(serverAddr, serverPort, fileName)
         sender.send_file()
 
-        # get current location
-        current_dir = os.getcwd()
-        # print("Current directory:", current_dir)
 
-        # Move back 2 levels
-        parent_dir = os.path.dirname(current_dir)
-        parent_dir = os.path.dirname(parent_dir)
-        # print("Parent directory:", parent_dir)
+        # need the below block if we want to use the same server_response.txt file
+        # i splitted it into 2 diff files as of now cause of a bug
+
+        # you're welcome to fix it xD 
+
+        # # get current location
+        # current_dir = os.getcwd()
+        # # print("Current directory:", current_dir)
+
+        # # Move back 2 levels
+        # parent_dir = os.path.dirname(current_dir)
+        # parent_dir = os.path.dirname(parent_dir)
+        # # print("Parent directory:", parent_dir)
 
         try:
-            with open(f'{parent_dir}/server_response.txt', 'r') as f:
+            with open(f'server_response2.txt', 'r') as f:
                 response = f.read()
                 print(f'\n{response}')
             f.close()

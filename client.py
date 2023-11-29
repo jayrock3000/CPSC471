@@ -76,6 +76,9 @@ def main():
 
         # Send command to server
         client_socket.send(command.encode())
+    
+        # Close socket
+        client_socket.close()
 
         try:
             with open('server_response.txt', 'r') as f:
@@ -84,9 +87,7 @@ def main():
             f.close()
         except:
             pass
-    
-        # Close socket
-        client_socket.close()
+        
         if debug == True:
             print("client socket has closed")
 
