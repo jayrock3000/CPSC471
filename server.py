@@ -89,9 +89,10 @@ def main():
             if command == 'ls':
                 print("WIP")
                 list = show_listing()
+                sendData = pickle.dumps (list)
                 #send user list
                 print("sending list")
-                connection_socket.send(list.encode())
+                connection_socket.send(sendData.encode())
 
             # send file from server
             elif command.startswith('get'):

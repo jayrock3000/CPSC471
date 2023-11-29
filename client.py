@@ -7,6 +7,7 @@
 # Import statements
 
 import socket
+import pickle
 
 # Debug mode provides additional console messages
 debug = True
@@ -77,6 +78,17 @@ def main():
 
         # Send command to server
         client_socket.send(command.encode())
+
+        #############
+        # Get data from server
+        # recvData = client_socket.recv()
+        # 
+        # convert byte to array
+        # list = pickle.loads (recvData)
+        #
+        # may want to make a function for ls command expect both empty and non-empty array
+        #
+        #############
 
         # Close socket
         client_socket.close()
