@@ -9,7 +9,7 @@
 import socket
 
 # Debug mode provides additional console messages
-debug = True
+debug = False
 
 ################################################################
 # Function to get user input for commands
@@ -72,12 +72,19 @@ def main():
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect((server_name, server_port))
         if debug == True:
-            print("establishing client socket")
             print("sending command")
 
         # Send command to server
         client_socket.send(command.encode())
 
+        try:
+            with open('server_response.txt', 'r') as f:
+                response = f.read()
+                print(f'\n{response}')
+            f.close()
+        except:
+            pass
+    
         # Close socket
         client_socket.close()
         if debug == True:

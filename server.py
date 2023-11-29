@@ -8,7 +8,7 @@
 
 import socket
 import os
-from Python.sendfile.sendfileserv import FileReceiverServer
+from Python.sendfile.Receivefileserv import FileReceiverServer
 
 # Debug mode provides additional console messages
 debug = True
@@ -21,10 +21,27 @@ def show_listing():
     if debug == True:
         print("show_listing() function activated")
     
-    files = os.listdir('.')
-    files = '\n'.join(files)
+                        #### ATTENTION ####
+                        
+    # for future Minh, or for anyone gonna update this
+    # Ensure we have a means to retrieve the precise location of the 'server_storage' folder.
+    # Otherwise, it will only work on this (my laptop),
+    # and upon installation on a new computer, the link/path MAY not work.
+    directory = 'server_storage'
 
-    return files
+    if os.path.exists(directory) and os.path.isdir(directory):
+        files = os.listdir(directory)
+        files = '\n- ' + '\n- '.join(files) + '\n'
+        
+        with open('server_response.txt', 'w') as f:
+            f.write("Directory list: \n")
+            f.write(files)
+        f.close()
+    else:
+        with open('server_response.txt', 'w') as f:
+            f.write("Directory not found or is not a directory.")
+        f.close()
+        # return "Directory not found or is not a directory."
 
 ################################################################
 # Function for get command
@@ -52,11 +69,11 @@ def main():
 
     # Establish connection
     while True:
-        print("Waiting for connection...")
+        print("\n\nWaiting for connection...")
         
         # Accept connections
         connection_socket, addr = server_socket.accept()
-        print(f"Connection established with {addr}")
+        print(f"Connection established with {addr}.\n\n")
         
         # Process client commands (e.g., ls, get, put, quit)
         while True:
@@ -68,8 +85,10 @@ def main():
 
             # Show files/directories in server
             if command == 'ls':
-                print("WIP")
-                #show_listing()
+                # print('Raw Response from server:\n')
+                # dir_list = show_listing()
+                # print(dir_list)
+                print('Response sent to client')
 
             # send file from server
             elif command.startswith('get'):
@@ -95,7 +114,8 @@ def main():
                 break
 
             connection_socket.close()
-            print("server socket has closed")
+            # shows up too many times, hard to debug so I comment it out - Minh.
+            # print("server socket has closed")
             break
 
 ################################################################
