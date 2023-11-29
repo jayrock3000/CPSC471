@@ -9,6 +9,7 @@
 import socket
 import os
 from Python.sendfile.sendfileserv import FileReceiverServer
+import pickle
 
 # Debug mode provides additional console messages
 debug = True
@@ -18,13 +19,31 @@ debug = True
 # List all files on server
 
 def show_listing():
+    ################################################## original code
+
     if debug == True:
         print("show_listing() function activated")
     
-    files = os.listdir('.')
-    files = '\n'.join(files)
+    #files = os.listdir('.')
+    #files = '\n'.join(files)
 
-    return files
+    #return files
+    ##################################################
+
+    #get current working directory and get folder path
+    cwd = os.getcwd()
+    stored = os.path.join(cwd, "stored")
+
+    # check if the stored folder exists
+    if os.path.exists(stored):
+        # get the list of files in the stored folder
+        files_list = os.listdir(stored)
+        # return the list of files
+        return files_list
+    else:
+        # return an empty list if the stored folder does not exist
+        return []
+
 
 ################################################################
 # Function for get command
@@ -69,7 +88,10 @@ def main():
             # Show files/directories in server
             if command == 'ls':
                 print("WIP")
-                #show_listing()
+                list = show_listing()
+                #send user list
+                print("sending list")
+                connection_socket.send(list.encode())
 
             # send file from server
             elif command.startswith('get'):
