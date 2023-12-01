@@ -52,6 +52,9 @@ def show_listing():
 def send_file():
     if debug == True:
         print("send_file() function activated")
+
+    print("WIP")
+
     # convert or make a duplicate of FileSender in sendfilecli.py
     # to send file from server
     pass
@@ -94,8 +97,7 @@ def main():
 
             # send file from server
             elif command.startswith('get'):
-                print("WIP")
-                #send_file()
+                send_file()
 
             # Receive file
             elif command.startswith('put'):
@@ -116,8 +118,7 @@ def main():
                 break
 
             connection_socket.close()
-            # shows up too many times, hard to debug so I comment it out - Minh.
-            # print("server socket has closed")
+            print("server socket has closed")
             break
 
 ################################################################

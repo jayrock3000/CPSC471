@@ -9,7 +9,7 @@
 import socket
 
 # Debug mode provides additional console messages
-debug = False
+debug = True
 
 ################################################################
 # Function to get user input for commands
