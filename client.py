@@ -7,6 +7,7 @@
 # Import statements
 
 import socket
+import os
 
 # Debug mode provides additional console messages
 debug = True
@@ -51,6 +52,53 @@ def commandInput():
         break
 
 ################################################################
+# Send file to server (Data channel for GET)
+def putData(fileName):
+    if debug == True:
+        print("putData() function activated")
+
+    # Connect to server
+    receiverName = 'localhost'
+    receiverPort = 5333
+
+    senderSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    senderSocket.connect((receiverName, receiverPort))
+
+    filePath = os.path.join("client_storage", fileName)
+
+    fileObj = open(filePath, "r")
+    numSent = 0
+    fileData = None
+
+    # Send until all data is sent
+    while True:
+        fileData = fileObj.read(65536)
+
+        if fileData:
+            dataSizeStr = str(len(fileData))
+
+            while len(dataSizeStr) < 10:
+                dataSizeStr = "0" + dataSizeStr
+
+            fileData = dataSizeStr + fileData
+
+            numSent = 0
+            
+            while len(fileData) > numSent:
+                chunk = fileData[numSent:].encode()
+                numSent += senderSocket.send(chunk)
+
+        else:
+            break
+    print(f"Client has sent {numSent} bytes")
+
+    senderSocket.close()
+    print("Sender data socket has been closed\n")
+    fileObj.close()
+
+
+
+################################################################
 # Receive file from server (Data channel for GET)
 
 def recvAll(sock, numBytes):
@@ -67,12 +115,12 @@ def recvAll(sock, numBytes):
     return recvBuff
 
 
-def dataSocket():
+def getData():
     if debug == True:
-        print("dataSocket() function activated")
+        print("getData() function activated")
 
     receiverName = 'localhost'
-    receiverPort = 5433
+    receiverPort = 5222
     receiverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     receiverSocket.bind((receiverName, receiverPort))
     receiverSocket.listen(1)
@@ -98,7 +146,43 @@ def dataSocket():
 
         receiverSocket.close()
         print("Receiver data socket has been closed\n")
-        break
+        
+        return fileData
+ 
+################################################################
+# Determine the name of the file being requested
+
+def parseFileName(command):
+    if debug == True:
+        print("parseFileName() function activated")
+    
+    # Remove get/put from commmand
+    if command.startswith('get'):
+        fileName = command.removeprefix('get ')
+    elif command.startswith('put'):
+        fileName = command.removeprefix('put ')
+
+    if debug == True:
+        print("fileName: " + fileName)
+
+    return fileName
+
+################################################################
+# Function for checking if requested file exists
+
+def fileExists(fileName):
+    if debug == True:
+        print("fileExists() function activated")
+
+    directory = 'client_storage'
+    if os.path.exists(directory) and os.path.isdir(directory):
+        files = os.listdir(directory)
+    
+    #print(files)
+    if fileName in files:
+        return True
+    
+    return False
 
 
 ################################################################
@@ -108,8 +192,7 @@ def main():
     
     # Connect to server
     server_name = 'localhost'
-    server_port = 5432
-
+    server_port = 5111
 
     command = ''
     while command != 'quit':        # Repeatedly get user input until "quit" entered
@@ -117,9 +200,21 @@ def main():
         # Get command from user
         command = commandInput()
 
+        # Handle Put command
+        if command.startswith('put'):
+            # Determine the file name
+            fileName = parseFileName(command)
+            filePath = os.path.join("client_storage", fileName)
+
+            # Check file exists
+            if fileExists(fileName) == False:
+                print(f"\nSorry, the file {filePath} could not be found, please try again\n")
+                continue # Get new command from client
+
         # Establish socket for command
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect((server_name, server_port))
+
         if debug == True:
             print("sending command")
 
@@ -130,12 +225,18 @@ def main():
         ack = client_socket.recv(1024)
         print(f"ACK from server: {ack.decode('utf-8')}")
 
+        # Handle get
+        if command.startswith('put'):
+            putData(fileName)
+
+            # Wait for server to ACK file received
+            ack = client_socket.recv(1024)
+            print(f"Server response: {ack.decode('utf-8')}")
+
         # Handle ls
-        if command == 'ls':
+        elif command == 'ls':
             lsResponse = client_socket.recv(1024)
             print(f"\n{lsResponse.decode('utf-8')}")
-
-
 
         # Handle get
         elif command.startswith('get'):
@@ -148,9 +249,12 @@ def main():
 
             else:
                 print(f"\n{getResponse.decode('utf-8')}")
-                dataSocket()
-
-
+                fileData = getData()
+                fileName = parseFileName(command)
+                filePath = os.path.join("client_storage", fileName)
+                with open(filePath, 'w') as file:
+                    file.write(fileData)
+                print(f"\nFile data has been written to .../{filePath}\n")
 
 
 

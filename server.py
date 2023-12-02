@@ -21,50 +21,35 @@ def getFileList():
     if debug == True:
         print("getFileList() function activated")
     
-                        #### ATTENTION ####
-                        
-    # for future Minh, or for anyone gonna update this
-    # Ensure we have a means to retrieve the precise location of the 'server_storage' folder.
-    # Otherwise, it will only work on this (my laptop),
-    # and upon installation on a new computer, the link/path MAY not work.
     directory = 'server_storage'
 
     if os.path.exists(directory) and os.path.isdir(directory):
         files = os.listdir(directory)
         files = '\n- ' + '\n- '.join(files) + '\n'
-        """
-        print('writing directories list...')
-        with open('server_response.txt', 'w') as f:
-            f.write("Directory list: \n")
-            f.write(files)
-        f.close()
-        print('done')
-        """
+
         return files
         
     else:
-        """
-        with open('server_response.txt', 'w') as f:
-            f.write("Directory not found or is not a directory.")
-        f.close()
-        # return "Directory not found or is not a directory."
-        """
         return 'Directory not found'
 
+
 ################################################################
-# Function for get command
-# Send file to client
+# Determine the name of the file being requested
 
-def sendFile():
+def parseFileName(command):
     if debug == True:
-        print("sendFile() function activated")
+        print("parseFileName() function activated")
+    
+    # Remove get/put from commmand
+    if command.startswith('get'):
+        fileName = command.removeprefix('get ')
+    elif command.startswith('put'):
+        fileName = command.removeprefix('put ')
 
-    print("WIP")
+    if debug == True:
+        print("fileName: " + fileName)
 
-    # convert or make a duplicate of FileSender in sendfilecli.py
-    # to send file from server
-    pass
-
+    return fileName
 
 ################################################################
 # Function for checking if requested file exists
@@ -77,7 +62,6 @@ def fileExists(fileName):
     if os.path.exists(directory) and os.path.isdir(directory):
         files = os.listdir(directory)
     
-    #print(files)
     if fileName in files:
         return True
     
@@ -85,36 +69,21 @@ def fileExists(fileName):
 
 
 ################################################################
-# Determine the name of the file being requested
-
-def parseFileName(command):
-    if debug == True:
-        print("parseFileName() function activated")
-    
-    # Remove get from commmand
-    fileName = command.removeprefix('get ')
-
-    if debug == True:
-        print("fileName: " + fileName)
-
-    return fileName
-
-################################################################
 # Send file to client (Data channel for GET)
-def dataSocket(fileName):
+def getData(fileName):
     if debug == True:
-        print("dataSocket() function activated")
+        print("getData() function activated")
 
     # Connect to server
     receiverName = 'localhost'
-    receiverPort = 5433
+    receiverPort = 5222
 
     senderSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     senderSocket.connect((receiverName, receiverPort))
 
-    fileName = "server_storage/" + fileName
+    filePath = os.path.join("server_storage", fileName)
 
-    fileObj = open(fileName, "r")
+    fileObj = open(filePath, "r")
     numSent = 0
     fileData = None
 
@@ -144,6 +113,56 @@ def dataSocket(fileName):
     print("Sender data socket has been closed\n")
     fileObj.close()
 
+################################################################
+# Receive file from server (Data channel for GET)
+
+def recvAll(sock, numBytes):
+    recvBuff = ""
+    tmpBuff = ""
+
+    while len(recvBuff) < numBytes:
+        tmpBuff = sock.recv(numBytes)
+        if not tmpBuff:
+            break
+
+        recvBuff += tmpBuff.decode('utf-8')
+
+    return recvBuff
+
+
+def putData():
+    if debug == True:
+        print("putData() function activated")
+
+    receiverName = 'localhost'
+    receiverPort = 5333
+    receiverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    receiverSocket.bind((receiverName, receiverPort))
+    receiverSocket.listen(1)
+
+    # Accept connection
+    while True:
+        print(f"Server ready to receive on port {receiverPort}")
+
+        senderSock, addr = receiverSocket.accept()
+        print(f"Accepted connection from sender: {addr}\n")
+
+        fileData = ""
+        fileSize = 0
+        fileSizeBuff = ""
+        fileSizeBuff = recvAll(senderSock, 10)
+
+        fileSize = int(fileSizeBuff)
+        print(f"File size is: {fileSize}\n")
+
+        fileData = recvAll(senderSock, fileSize)
+
+        print(f"File data is: {fileData}\n")
+
+        receiverSocket.close()
+        print("Receiver data socket has been closed\n")
+        
+        return fileData
 
 ################################################################
 # Main Method
@@ -151,7 +170,7 @@ def dataSocket(fileName):
 def main():
 
     # Set up socket
-    server_port = 5432
+    server_port = 5111
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind(('localhost', server_port))
     server_socket.listen(1)
@@ -178,7 +197,7 @@ def main():
             ack = f"Server recieved: {command}"
             connection_socket.sendall(ack.encode('utf-8'))
 
-            # Server handles LS command, sends directory contents to client
+            # Server handles LS command
             if command == 'ls':
                 # print('Raw Response from server:\n')
                 files = getFileList()
@@ -201,14 +220,18 @@ def main():
                     connection_socket.sendall(getResponse.encode('utf-8'))
 
                     # Establish data socket
-                    dataSocket(fileName) 
+                    getData(fileName)
 
-
-            # Receive file
+            # Server handles Put command
             elif command.startswith('put'):
-                print("WIP")
-                #server_receive = FileReceiverServer(server_port)
-                #server_receive.start_server()
+                fileData = putData()
+                fileName = parseFileName(command)
+                filePath = os.path.join("server_storage", fileName)
+                with open(filePath, 'w') as file:
+                    file.write(fileData)
+                ack = "File data has been written to ..." + filePath
+                print(ack)
+                connection_socket.sendall(ack.encode('utf-8'))
 
             # Close if 'quit' received
             elif command == 'quit':
