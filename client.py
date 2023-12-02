@@ -62,7 +62,7 @@ def recvAll(sock, numBytes):
         if not tmpBuff:
             break
 
-        recvBuff += tmpBuff
+        recvBuff += tmpBuff.decode('utf-8')
 
     return recvBuff
 

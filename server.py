@@ -131,9 +131,10 @@ def dataSocket(fileName):
             fileData = dataSizeStr + fileData
 
             numSent = 0
-
+            
             while len(fileData) > numSent:
-                numSent += senderSocket.send(fileData[numSent:])
+                chunk = fileData[numSent:].encode()
+                numSent += senderSocket.send(chunk)
 
         else:
             break
