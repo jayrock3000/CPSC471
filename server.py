@@ -8,7 +8,7 @@
 
 import socket
 import os
-from Python.sendfile.Receivefileserv import FileReceiverServer
+#from Python.sendfile.Receivefileserv import FileReceiverServer
 
 # Debug mode provides additional console messages
 debug = True
@@ -17,7 +17,7 @@ debug = True
 # Function for ls command
 # List all files on server
 
-def show_listing():
+def getFileList():
     if debug == True:
         print("show_listing() function activated")
     
@@ -32,32 +32,77 @@ def show_listing():
     if os.path.exists(directory) and os.path.isdir(directory):
         files = os.listdir(directory)
         files = '\n- ' + '\n- '.join(files) + '\n'
-        
+        """
         print('writing directories list...')
         with open('server_response.txt', 'w') as f:
             f.write("Directory list: \n")
             f.write(files)
         f.close()
         print('done')
+        """
+        return files
+        
     else:
+        """
         with open('server_response.txt', 'w') as f:
             f.write("Directory not found or is not a directory.")
         f.close()
         # return "Directory not found or is not a directory."
+        """
+        return 'Directory not found'
 
 ################################################################
 # Function for get command
 # Send file to client
 
-def send_file():
+def sendFile():
     if debug == True:
-        print("send_file() function activated")
+        print("sendFile() function activated")
 
     print("WIP")
 
     # convert or make a duplicate of FileSender in sendfilecli.py
     # to send file from server
     pass
+
+"""
+################################################################
+# Function for checking if requested file exists
+
+
+#WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP
+
+def findFile(fileName):
+    if debug == True:
+        print("findFile() function activated")
+
+    directory = 'server_storage'
+    if os.path.exists(directory) and os.path.isdir(directory):
+        files = os.listdir(directory)
+    
+    print(files)
+    if fileName in files:
+        print("found it")
+
+#WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP
+
+################################################################
+# Determine the name of the file being requested
+
+def parseFileName(command):
+    if debug == True:
+        print("parseFileName() function activated")
+    pass
+"""
+
+################################################################
+# Determine file size
+
+def getFileSize(fileName):
+    fileSize = 0
+
+    return fileSize
+
 
 ################################################################
 # Main Method
@@ -87,20 +132,27 @@ def main():
             if debug == True:
                 print("command received:", end='')
                 print(command)
+            
+            # Server sends acknowledgement
+            ack = f"Server recieved: {command}"
+            connection_socket.sendall(ack.encode('utf-8'))
 
             # Show files/directories in server
             if command == 'ls':
                 # print('Raw Response from server:\n')
-                dir_list = show_listing()
+                files = getFileList()
                 # print(dir_list)
-                print('Response sent to client')
+                #print('Response sent to client')
+                lsResponse = f"Directory list: \n {files}"
+                connection_socket.sendall(lsResponse.encode('utf-8'))
 
-            # send file from server
+            # Server sends file to client
             elif command.startswith('get'):
-                send_file()
+                
+                sendFile()
 
             # Receive file
-            elif command.startswith('put'):
+            # elif command.startswith('put'):
                 print("WIP")
                 #server_receive = FileReceiverServer(server_port)
                 #server_receive.start_server()

@@ -1,8 +1,0 @@
-Directory list: 
-
-- file.txt
-- place holder - Copy (2).txt
-- place holder - Copy (3).txt
-- place holder - Copy (4).txt
-- place holder - Copy.txt
-- place holder.txt

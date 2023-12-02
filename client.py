@@ -76,10 +76,20 @@ def main():
 
         # Send command to server
         client_socket.send(command.encode())
+
+        # Client receives acknowledgement
+        ack = client_socket.recv(1024)
+        print(f"ACK from server: {ack.decode('utf-8')}")
+
+        # Handle ls
+        if command == 'ls':
+            lsResponse = client_socket.recv(1024)
+            print(f"\n{lsResponse.decode('utf-8')}")
     
         # Close socket
         client_socket.close()
 
+        """
         try:
             with open('server_response.txt', 'r') as f:
                 response = f.read()
@@ -87,6 +97,7 @@ def main():
             f.close()
         except:
             pass
+        """
         
         if debug == True:
             print("client socket has closed")
