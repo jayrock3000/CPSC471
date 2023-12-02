@@ -51,12 +51,61 @@ def commandInput():
         break
 
 ################################################################
+# Receive file from server (Data channel for GET)
+
+def recvAll(sock, numBytes):
+    recvBuff = ""
+    tmpBuff = ""
+
+    while len(recvBuff) < numBytes:
+        tmpBuff = sock.recv(numBytes)
+        if not tmpBuff:
+            break
+
+        recvBuff += tmpBuff
+
+    return recvBuff
+
+
+def dataSocket():
+    if debug == True:
+        print("dataSocket() function activated")
+
+    receiverName = 'localhost'
+    receiverPort = 5433
+    receiverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    receiverSocket.bind((receiverName, receiverPort))
+    receiverSocket.listen(1)
+
+    # Accept connection
+    while True:
+        print(f"Client ready to receive on port {receiverPort}")
+
+        senderSock, addr = receiverSocket.accept()
+        print(f"Accepted connection from sender: {addr}\n")
+
+        fileData = ""
+        fileSize = 0
+        fileSizeBuff = ""
+        fileSizeBuff = recvAll(senderSock, 10)
+
+        fileSize = int(fileSizeBuff)
+        print(f"File size is: {fileSize}\n")
+
+        fileData = recvAll(senderSock, fileSize)
+
+        print(f"File data is: {fileData}\n")
+
+        receiverSocket.close()
+        print("Receiver data socket has been closed\n")
+        break
+
+
+################################################################
 # Main Method
 
 def main():
-    # Variable for debugging program
     
-
     # Connect to server
     server_name = 'localhost'
     server_port = 5432
@@ -85,7 +134,27 @@ def main():
         if command == 'ls':
             lsResponse = client_socket.recv(1024)
             print(f"\n{lsResponse.decode('utf-8')}")
-    
+
+
+
+        # Handle get
+        elif command.startswith('get'):
+            getResponse = client_socket.recv(1024)
+
+            if getResponse.decode('utf-8') == "Error: File not found":
+                print("\nServer was not able to find the file\n")
+                client_socket.close()
+                continue
+
+            else:
+                print(f"\n{getResponse.decode('utf-8')}")
+                dataSocket()
+
+
+
+
+
+
         # Close socket
         client_socket.close()
 

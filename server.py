@@ -19,7 +19,7 @@ debug = True
 
 def getFileList():
     if debug == True:
-        print("show_listing() function activated")
+        print("getFileList() function activated")
     
                         #### ATTENTION ####
                         
@@ -65,26 +65,24 @@ def sendFile():
     # to send file from server
     pass
 
-"""
+
 ################################################################
 # Function for checking if requested file exists
 
-
-#WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP
-
-def findFile(fileName):
+def fileExists(fileName):
     if debug == True:
-        print("findFile() function activated")
+        print("fileExists() function activated")
 
     directory = 'server_storage'
     if os.path.exists(directory) and os.path.isdir(directory):
         files = os.listdir(directory)
     
-    print(files)
+    #print(files)
     if fileName in files:
-        print("found it")
+        return True
+    
+    return False
 
-#WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP
 
 ################################################################
 # Determine the name of the file being requested
@@ -92,16 +90,58 @@ def findFile(fileName):
 def parseFileName(command):
     if debug == True:
         print("parseFileName() function activated")
-    pass
-"""
+    
+    # Remove get from commmand
+    fileName = command.removeprefix('get ')
+
+    if debug == True:
+        print("fileName: " + fileName)
+
+    return fileName
 
 ################################################################
-# Determine file size
+# Send file to client (Data channel for GET)
+def dataSocket(fileName):
+    if debug == True:
+        print("dataSocket() function activated")
 
-def getFileSize(fileName):
-    fileSize = 0
+    # Connect to server
+    receiverName = 'localhost'
+    receiverPort = 5433
 
-    return fileSize
+    senderSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    senderSocket.connect((receiverName, receiverPort))
+
+    fileName = "server_storage/" + fileName
+
+    fileObj = open(fileName, "r")
+    numSent = 0
+    fileData = None
+
+    # Send until all data is sent
+    while True:
+        fileData = fileObj.read(65536)
+
+        if fileData:
+            dataSizeStr = str(len(fileData))
+
+            while len(dataSizeStr) < 10:
+                dataSizeStr = "0" + dataSizeStr
+
+            fileData = dataSizeStr + fileData
+
+            numSent = 0
+
+            while len(fileData) > numSent:
+                numSent += senderSocket.send(fileData[numSent:])
+
+        else:
+            break
+    print(f"Server has sent {numSent} bytes")
+
+    senderSocket.close()
+    print("Sender data socket has been closed\n")
+    fileObj.close()
 
 
 ################################################################
@@ -127,7 +167,7 @@ def main():
         
         # Process client commands (e.g., ls, get, put, quit)
         while True:
-            # Get command from client
+            # Receive command from client
             command = connection_socket.recv(1024).decode()
             if debug == True:
                 print("command received:", end='')
@@ -137,7 +177,7 @@ def main():
             ack = f"Server recieved: {command}"
             connection_socket.sendall(ack.encode('utf-8'))
 
-            # Show files/directories in server
+            # Server handles LS command, sends directory contents to client
             if command == 'ls':
                 # print('Raw Response from server:\n')
                 files = getFileList()
@@ -146,13 +186,25 @@ def main():
                 lsResponse = f"Directory list: \n {files}"
                 connection_socket.sendall(lsResponse.encode('utf-8'))
 
-            # Server sends file to client
+            # Server handles Get command
             elif command.startswith('get'):
-                
-                sendFile()
+                fileName = parseFileName(command)
+
+                if fileExists(fileName) == False:
+                    getResponse = "Error: File not found"
+                    connection_socket.sendall(getResponse.encode('utf-8'))
+
+                # File exists, send ACK
+                else:
+                    getResponse = f"Get Response: FileName detected: {fileName}"
+                    connection_socket.sendall(getResponse.encode('utf-8'))
+
+                    # Establish data socket
+                    dataSocket(fileName) 
+
 
             # Receive file
-            # elif command.startswith('put'):
+            elif command.startswith('put'):
                 print("WIP")
                 #server_receive = FileReceiverServer(server_port)
                 #server_receive.start_server()
