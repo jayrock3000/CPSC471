@@ -8,7 +8,10 @@
 # Please ensure any files you wish to transfer are
 # located in the client_storage or server_storage
 # folders in the same directory as client.py and
-##################################################
+#
+# Files must be .txt and less than MAX_FILE_SIZE bytes
+#
+################################################################
 # Import statements
 
 import socket
@@ -17,6 +20,9 @@ import time
 
 # Debug mode provides additional console messages
 debug = False
+
+# Global Variables
+MAX_FILE_SIZE = 65536
 
 ################################################################
 # Print header for group project
@@ -29,7 +35,8 @@ def programHeader():
     print("IMPORTANT")
     print("Please ensure any files you wish to transfer are")
     print("located in the client_storage or server_storage")
-    print("folders in the same directory as client.py and")
+    print("folders in the same directory as client.py and server.py\n")
+    print(f"Files must be .txt and less than {MAX_FILE_SIZE} bytes")
     print("##################################################\n")
 
 ################################################################
@@ -94,7 +101,7 @@ def putData(fileName):
 
     # Send until all data is sent
     while True:
-        fileData = fileObj.read(65536)
+        fileData = fileObj.read(MAX_FILE_SIZE)
 
         if fileData:
             dataSizeStr = str(len(fileData))
@@ -112,6 +119,7 @@ def putData(fileName):
 
         else:
             break
+
     print(f"Client has sent {numSent} bytes")
 
     senderSocket.close()
