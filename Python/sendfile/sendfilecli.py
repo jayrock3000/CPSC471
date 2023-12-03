@@ -2,6 +2,8 @@ import socket
 import os
 import sys
 
+debug = True
+
 class FileSenderClient:
     def __init__(self, server_address, server_port, file_name):
         self.server_address = server_address
@@ -30,8 +32,10 @@ class FileSenderClient:
             file_data = file_obj.read(65536)
 
             if file_data:
+                # print(f"Reading from:\n {file_data}")
                 # Get the size of the data read and convert it to string
                 data_size_str = str(len(file_data))
+                print(f'data size: {data_size_str}')
 
                 # Prepend 0's to the size string until the size is 10 bytes
                 while len(data_size_str) < 10:
@@ -39,13 +43,17 @@ class FileSenderClient:
 
                 # Prepend the size of the data to the file data
                 file_data = data_size_str + file_data
-
+                file_data = f"{len(self.file_name):010}" + self.file_name + file_data
+                # print(f'file data: {file_data}')
+                
                 # The number of bytes sent
                 num_sent = 0
 
                 # Send the data
                 while len(file_data) > num_sent:
-                    num_sent += conn_sock.send(file_data[num_sent:])
+                    # Encode the string to bytes
+                    chunk = file_data[num_sent:].encode()  
+                    num_sent += conn_sock.send(chunk)
 
             else:
                 break
@@ -58,18 +66,44 @@ class FileSenderClient:
 
 
 if __name__ == '__main__':
-	# Command line checks
-	if len(sys.argv) < 2:
-		print("USAGE python " + sys.argv[0] + " <FILE NAME>")
-	else:
-		# Server address
-		serverAddr = "localhost"
+    # Command line checks
+    if len(sys.argv) < 2:
+        print("USAGE python " + sys.argv[0] + " <FILE NAME>")
+    else:
+        # Server address
+        serverAddr = "localhost"
 
-		# Server port
-		serverPort = 1234
+        # Server port
+        serverPort = 1234
 
-		# The name of the file
-		fileName = sys.argv[1]
+        # The name of the file
+        fileName = 'file.txt'
 
-		sender = FileSenderClient(serverAddr, serverPort, fileName)
-		sender.send_file()
+        sender = FileSenderClient(serverAddr, serverPort, fileName)
+        sender.send_file()
+
+
+        # need the below block if we want to use the same server_response.txt file
+        # i splitted it into 2 diff files as of now cause of a bug
+
+        # you're welcome to fix it xD 
+
+        # # get current location
+        # current_dir = os.getcwd()
+        # # print("Current directory:", current_dir)
+
+        # # Move back 2 levels
+        # parent_dir = os.path.dirname(current_dir)
+        # parent_dir = os.path.dirname(parent_dir)
+        # # print("Parent directory:", parent_dir)
+
+        try:
+            with open(f'server_response2.txt', 'r') as f:
+                response = f.read()
+                print(f'\n{response}')
+            f.close()
+        except BaseException as e :
+            print(e)
+
+    if debug:
+        print('File Sent.')

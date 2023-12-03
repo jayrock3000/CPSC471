@@ -1,0 +1,6 @@
+Received file name: file.txt
+The file size is: 22
+File's data:
+a.txt
+sendfilecli.py
+
