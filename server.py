@@ -1,8 +1,13 @@
 ################################################################
 # Group project for CPSC 471
-# By Jeffrey Rhoten, Lucas Nguyen and Minh Gia Hoang
+# By Jeffrey Rhoten, Lucas Nguyen and Gia Minh Hoang
 #
 # Server.py
+#
+# IMPORTANT
+# Please ensure any files you wish to transfer are
+# located in the client_storage or server_storage
+# folders in the same directory as client.py and
 ################################################################
 # Import statements
 
@@ -11,7 +16,21 @@ import os
 #from Python.sendfile.Receivefileserv import FileReceiverServer
 
 # Debug mode provides additional console messages
-debug = True
+debug = False
+
+################################################################
+# Print header for group project
+
+def programHeader():
+    print("##################################################")
+    print("Group project for CPSC 471")
+    print("By Jeffrey Rhoten, Lucas Nguyen and Gia Minh Hoang\n")
+    print("server.py\n")
+    print("IMPORTANT")
+    print("Please ensure any files you wish to transfer are")
+    print("located in the client_storage or server_storage")
+    print("folders in the same directory as client.py and")
+    print("##################################################\n")
 
 ################################################################
 # Function for ls command
@@ -169,6 +188,9 @@ def putData():
 
 def main():
 
+    # Print header for information about this program
+    programHeader()
+
     # Set up socket
     server_port = 5111
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -179,7 +201,7 @@ def main():
 
     # Establish connection
     while True:
-        print("\n\nWaiting for connection...")
+        print("Waiting for connection...")
         
         # Accept connections
         connection_socket, addr = server_socket.accept()
@@ -194,7 +216,7 @@ def main():
                 print(command)
             
             # Server sends acknowledgement
-            ack = f"Server recieved: {command}"
+            ack = f"recieved: {command}"
             connection_socket.sendall(ack.encode('utf-8'))
 
             # Server handles LS command

@@ -1,16 +1,36 @@
 ################################################################
 # Group project for CPSC 471
-# By Jeffrey Rhoten, Lucas Nguyen and Minh Gia Hoang
+# By Jeffrey Rhoten, Lucas Nguyen and Gia Minh Hoang
 #
 # Client.py
-################################################################
+#
+# IMPORTANT
+# Please ensure any files you wish to transfer are
+# located in the client_storage or server_storage
+# folders in the same directory as client.py and
+##################################################
 # Import statements
 
 import socket
 import os
+import time
 
 # Debug mode provides additional console messages
-debug = True
+debug = False
+
+################################################################
+# Print header for group project
+
+def programHeader():
+    print("##################################################")
+    print("Group project for CPSC 471")
+    print("By Jeffrey Rhoten, Lucas Nguyen and Gia Minh Hoang\n")
+    print("client.py\n")
+    print("IMPORTANT")
+    print("Please ensure any files you wish to transfer are")
+    print("located in the client_storage or server_storage")
+    print("folders in the same directory as client.py and")
+    print("##################################################\n")
 
 ################################################################
 # Function to get user input for commands
@@ -22,8 +42,10 @@ def commandInput():
 
     userInput = ""
 
+    print("Valid commands: ls, get, put, quit")
+
     while True:
-        print("Enter command (ls, get, put, quit): ", end="")
+        print('ftp> ', end='')
         validInputs = ['ls', 'quit']
         userInput = input()
         try:
@@ -189,10 +211,22 @@ def fileExists(fileName):
 # Main Method
 
 def main():
-    
+
+    # Print header for information about this program
+    programHeader()
+
     # Connect to server
     server_name = 'localhost'
     server_port = 5111
+    while(True):
+        try:
+            client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            client_socket.connect((server_name, server_port))
+            print(f"Connected to server on port {server_port}")
+            break
+        except:
+            print(f"Server not found on port {server_port}, trying again in 5 seconds")
+            time.sleep(5)
 
     command = ''
     while command != 'quit':        # Repeatedly get user input until "quit" entered
@@ -223,7 +257,7 @@ def main():
 
         # Client receives acknowledgement
         ack = client_socket.recv(1024)
-        print(f"ACK from server: {ack.decode('utf-8')}")
+        print(f"Server response: {ack.decode('utf-8')}")
 
         # Handle get
         if command.startswith('put'):
