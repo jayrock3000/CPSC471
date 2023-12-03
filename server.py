@@ -269,7 +269,7 @@ def main():
             print(f"command received: {command}")
             
             # Server acknowledges command received
-            ack = f"received {command}"
+            ack = f"received command {command}"
             connection_socket.sendall(ack.encode('utf-8'))
 
 
@@ -318,15 +318,22 @@ def main():
                 fileName = parseFileName(command)
                 filePath = os.path.join("server_storage", fileName)
 
-                # Save file data to disk 
-                with open(filePath, 'w') as file:
-                    file.write(fileData)
-                
-                # Print/Send confirmation ACK
-                ack = "File data has been written to ..." + filePath
-                print(ack)
-                connection_socket.sendall(ack.encode('utf-8'))
+                # Save file data to disk
+                try:
+                    with open(filePath, 'w') as file:
+                        file.write(fileData)
 
+                    # Print/Send confirmation ACK
+                    ack = "File data has been written to ..." + filePath
+                    print(ack)
+                    connection_socket.sendall(ack.encode('utf-8'))
+
+                # Catch exception for missing storage folder
+                except:
+                    nak = "server_storage folder missing\nfile transfer failed"
+                    print(nak)
+                    connection_socket.sendall(nak.encode('utf-8'))
+                
 
             # Handle QUIT (server closes)
             elif command == 'quit':
@@ -335,13 +342,6 @@ def main():
                 print("server has quit")
                 exit()
 
-
-            """
-            # Handle exceptions
-            else: 
-                print("Error server-1: Unknown Command.")
-                break
-            """
 
             # Close socket
             connection_socket.close()

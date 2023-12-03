@@ -385,11 +385,16 @@ def main():
                 filePath = os.path.join("client_storage", fileName)
 
                 # Save file data to disk
-                with open(filePath, 'w') as file:
-                    file.write(fileData)
+                try:
+                    with open(filePath, 'w') as file:
+                        file.write(fileData)
 
-                # Print confirmation
-                print(f"File data has been written to .../{filePath}\n")
+                    # Print confirmation
+                    print(f"File data has been written to .../{filePath}\n")
+                
+                # Catch exception for missing storage folder
+                except:
+                    print("client_storage folder missing\nfile transfer failed\n")
 
 
         # Close socket
