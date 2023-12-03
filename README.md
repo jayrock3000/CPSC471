@@ -5,13 +5,32 @@ Group project for CPSC 471 at CSUF
 
 Lucas Nguyen - LucasDNguyen@csu.fullerton.edu
 
-Jeffrey Rhoten - 
+Jeffrey Rhoten - jeffrhoten@csu.fullerton.edu
 
 Gia Minh Hoang - minhhg16@csu.fullerton.edu
+
+
+# TLDR Instructions
+
+1. There should be folders called client_storage and server_storage in the same directory as client.py and server.py respectively
+	- Ensure any files you wish to get or put via FTP are located in client_storage or server_storage
+
+2. Run server.py
+	- server.py will establish the control channel through a predetermined port
+
+3. Run client.py
+	- client.py will connect to the server and can send commands through the control channel
+
+4. Enter commands into the terminal for client.py
+	- Valid commands are [ls, get, put, quit]
+
+
+
 
 # Simple FTP (File Transfer Protocol) Service
 
 This repository contains a simple implementation of an FTP service using Python. The service comprises two main scripts: client.py and server.py. These scripts allow users to transfer files between a client and server using basic command functionalities such as 'ls', 'get', 'put', and 'quit'.
+
 
 **Files:** 
 
@@ -26,7 +45,7 @@ This repository contains a simple implementation of an FTP service using Python.
 		- Exiting the Client (quit): Closes the client application.
 
 2. server.py
-	The server.py script manages server-side operations for file transfer. Main functionalities include:
+	The server.py script manages server-side operations for file transfer. It receives commands from the client through the control channel. Its functionality includes:
 		- Listing Files (ls): Displays the list of files available on the server.
 
 		- Downloading Files (get): Sends requested files from the server to the client.
