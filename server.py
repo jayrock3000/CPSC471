@@ -88,8 +88,13 @@ def fileExists(fileName):
     if os.path.exists(directory) and os.path.isdir(directory):
         files = os.listdir(directory)
     
-    if fileName in files:
-        return True
+    while(True):
+        try:
+            if fileName in files:
+                return True
+                
+        except:
+            return False
     
     return False
 

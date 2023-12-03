@@ -49,7 +49,7 @@ def commandInput():
 
     userInput = ""
 
-    print("Valid commands: ls, get, put, quit")
+    print("\nValid commands: ls, get, put, quit\n")
 
     while True:
         print('ftp> ', end='')
@@ -208,9 +208,13 @@ def fileExists(fileName):
     if os.path.exists(directory) and os.path.isdir(directory):
         files = os.listdir(directory)
     
-    #print(files)
-    if fileName in files:
-        return True
+    while(True):
+        try:
+            if fileName in files:
+                return True
+        
+        except:
+            return False
     
     return False
 
@@ -250,7 +254,7 @@ def main():
 
             # Check file exists
             if fileExists(fileName) == False:
-                print(f"\nSorry, the file {filePath} could not be found, please try again\n")
+                print(f"\nSorry, the file {filePath} could not be found, please try again")
                 continue # Get new command from client
 
         # Establish socket for command
@@ -285,7 +289,7 @@ def main():
             getResponse = client_socket.recv(1024)
 
             if getResponse.decode('utf-8') == "Error: File not found":
-                print("\nServer was not able to find the file\n")
+                print("\nServer response:\n    Error: File not found")
                 client_socket.close()
                 continue
 
@@ -297,8 +301,6 @@ def main():
                 with open(filePath, 'w') as file:
                     file.write(fileData)
                 print(f"\nFile data has been written to .../{filePath}\n")
-
-
 
 
         # Close socket
